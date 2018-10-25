@@ -1,3 +1,7 @@
+"""This module contains monitor() and process() functions. It also has a function decorator.
+Map() function is used in process() function.
+"""
+
 import os
 from datetime import datetime
 
@@ -5,6 +9,16 @@ from file_processing import process_valid_file, copy_error_file
 
 
 def duration_logger(original_function):
+    """Function decorator which measures execution time of the wrapped function and
+    displays the time with the function's name.
+
+    Args:
+        original_function (function): The function to measure.
+
+    Returns:
+        function: Wrapper function definition.
+    """
+
     def wrapper_function(*args, **kwargs):
         start_time = datetime.utcnow()
         output = original_function(*args, **kwargs)
@@ -17,6 +31,15 @@ def duration_logger(original_function):
 
 @duration_logger
 def process(file_path):
+    """The function opens a file and checks whether the file is not empty and contains valid content
+    (a string with Python's list). Valid content is summed up, otherwise an error message is captured.
+
+    Args:
+        file_path (str): The path to the file to read and to validate.
+
+    Returns:
+        dict: Dictionary with validation and data processing results.
+    """
     output = {}
     with open(file_path, 'r') as f:
         if os.stat(file_path).st_size == 0:
@@ -35,6 +58,18 @@ def process(file_path):
 
 
 def monitor(input_dir, output_dir, error_dir):
+    """The function looks for .txt files in the input directory, reads and validates them (via process() function).
+    Valid content is written in new files in the output directory. All other files are moved to the error directory.
+    All processed files are removed from the input folder. All program runs are logged in the output directory.
+
+    Args:
+        input_dir (str): Input directory path.
+        output_dir (str): Output directory path.
+        error_dir (str): Error directory path.
+
+    Returns:
+        dict: Dictionary with validation and data processing results.
+    """
     start_time = datetime.utcnow()
     count = 0
     for file_name in os.listdir(input_dir):
