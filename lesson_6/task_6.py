@@ -1,8 +1,8 @@
 class Context(dict):
     def __init__(self, **kwargs):
+        super().__init__()
         """Constructor of the Context class.
         Can take any number of variables"""
-        super().__init__()
         for k, v in kwargs.items():
             self.__setattr__(k, v)
 
@@ -30,13 +30,17 @@ class Context(dict):
         for k, v in self.items():
             yield "{}={}".format(k, v)
 
+    def __enter__(self):
+        for k, v in self.items():
+            globals()[k] = v
 
-obj = Context(a=1, b=2)
-obj.c8 = 31
-obj.d15 = 33
+    def __exit__(self, exc_type, exc_val, exc_trace):
+        for k, v in self.items():
+            del globals()[k]
 
-print(obj)
-print(len(obj))
 
-for i in obj:
-    print(i)
+x, y, z = 10, 20j, "Hello world"
+print(x, y, z)
+
+with Context(x=1, y=2j, z="Hello") as c:
+    print(x, y, z)
